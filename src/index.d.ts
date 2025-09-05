@@ -17,4 +17,7 @@ export class LuauState {
 	destroy(): void;
 }
 
-export const InternalLuauWasmModule = require("./lib/Luau.Web");
+export const InternalLuauWasmModule = {
+	ccall: (ident: any, returnType: any, argTypes: any, args: any, opts: any) => any,
+	cwrap: (ident: any, returnType: any, argTypes: any, opts: any) => any
+};

@@ -38,7 +38,7 @@ class LuauState {
         var luauValue = null;
         try {
             luauValue = JSON.parse(Luau.transactionData[transactionId])
-        } catch (e) {}
+        } catch (e) { }
         return Luau.luauToJsValue(this.state, luauValue)
     }
 
