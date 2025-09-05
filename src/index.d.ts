@@ -6,11 +6,20 @@ export interface LuauEnv {
 	[key: string]: any;
 }
 
+export interface LuauTable {
+	get(key: any): any;
+	set(key: any, value: any): any;
+	[key: string]: any;
+}
+
+export type LuauFunction = (...args: any) => any;
+
 export class LuauState {
 	static createAsync(env: LuauEnv): Promise<LuauState>;
 	constructor(env: LuauEnv);
 
-	loadstring(source: string, chunkname: string, throwOnCompilationError?: boolean): ((...args: any[]) => [any]) | string;
+	loadstring(source: string, chunkname: string, throwOnCompilationError: true): LuauFunction;
+	loadstring(source: string, chunkname: string, throwOnCompilationError?: boolean): (LuauFunction) | string;
 	makeTransaction(value: any): number;
 	setEnvironment(env: LuauEnv): void;
 	getValue(idx: number): any;
