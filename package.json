@@ -1,0 +1,28 @@
+{
+    "name": "luau-web",
+    "version": "1.0.0",
+    "description": "Luau bindings with dynamic JavaScript interop for web browsers, Node.js, and TypeScript.",
+    "main": "src/index.js",
+    "types": "src/index.d.ts",
+    "files": [
+        "src/"
+    ],
+    "scripts": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xNasuni/luau-web.git"
+    },
+    "keywords": [
+        "lua",
+        "luau",
+        "luau-interop",
+        "luau-web",
+        "wasm"
+    ],
+    "author": "xNasuni",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/xNasuni/luau-web/issues"
+    },
+    "homepage": "https://github.com/xNasuni/luau-web#readme"
+}
