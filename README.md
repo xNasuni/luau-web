@@ -7,6 +7,8 @@ Luau (lowercase u, /ˈlu.aʊ/) is a fast, small, safe, gradually typed embeddabl
 
 This repository hosts bindings for Luau that targets websites, Node.JS, and Typescript. For examples and documentation, you can check out [the wiki](https://github.com/xNasuni/luau-web/wiki).
 
+The Luau Web package uses [luau-interop](https://github.com/xNasuni/luau-interop/). It's another project I made which is the fork of Luau with rewritten and overhauled WASM execution API. This package is just bindings for that other project, it comes bundled in here.
+
 # Installation
 
 ### pnpm <img src="https://avatars.githubusercontent.com/u/21320719?s=64&v=4" width="30px" align="left"/>
