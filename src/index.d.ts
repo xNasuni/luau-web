@@ -19,5 +19,6 @@ export class LuauState {
 
 export const InternalLuauWasmModule = {
 	ccall: (ident: any, returnType: any, argTypes: any, args: any, opts: any) => any,
-	cwrap: (ident: any, returnType: any, argTypes: any, opts: any) => any
+	cwrap: (ident: any, returnType: any, argTypes: any, opts: any) => any,
+	onRuntimeInitialized: (any) => any
 };
