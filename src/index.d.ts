@@ -7,12 +7,14 @@ export interface LuauEnv {
 }
 
 export class LuauState {
-	static async createAsync(env: LuauEnv);
+	static createAsync(env: LuauEnv): Promise<LuauState>;
 	constructor(env: LuauEnv);
 
-	loadstring(source: string, chunkname: string = "LuauWeb", throwOnCompilationError?: boolean): ((...args: any[]) => [any]) | string;
+	loadstring(source: string, chunkname: string, throwOnCompilationError?: boolean): ((...args: any[]) => [any]) | string;
 	makeTransaction(value: any): number;
 	setEnvironment(env: LuauEnv): void;
 	getValue(idx: number): any;
 	destroy(): void;
 }
+
+export const InternalLuauWasmModule = require("./lib/Luau.Web");
