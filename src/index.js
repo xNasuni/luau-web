@@ -21,10 +21,14 @@ class LuauState {
     }
 
     constructor(env) {
-        this.env = env
-        Luau.environments = Luau.environments || []
-        this.envIdx = Luau.environments.length + 1
-        Luau.environments[this.envIdx] = this.env
+        if (env) {
+            this.env = env
+            Luau.environments = Luau.environments || []
+            this.envIdx = Luau.environments.length + 1
+            Luau.environments[this.envIdx] = this.env
+        } else {
+            this.envIdx = 0;
+        }
 
         this.state = Luau.ccall('makeLuaState', 'int', ['number'], [this.envIdx])
     }

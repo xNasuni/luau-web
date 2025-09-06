@@ -15,11 +15,11 @@ export interface LuauTable {
 export type LuauFunction = (...args: any) => any;
 
 export class LuauState {
-	static createAsync(env: LuauEnv): Promise<LuauState>;
-	constructor(env: LuauEnv);
+	static createAsync(env?: LuauEnv): Promise<LuauState>;
+	constructor(env?: LuauEnv);
 
-	loadstring(source: string, chunkname: string, throwOnCompilationError: true): LuauFunction;
-	loadstring(source: string, chunkname: string, throwOnCompilationError?: boolean): (LuauFunction) | string;
+	loadstring(source: string, chunkname?: string, throwOnCompilationError: true): LuauFunction;
+	loadstring(source: string, chunkname?: string, throwOnCompilationError?: boolean): (LuauFunction) | string;
 	makeTransaction(value: any): number;
 	setEnvironment(env: LuauEnv): void;
 	getValue(idx: number): any;
@@ -29,5 +29,7 @@ export class LuauState {
 export const InternalLuauWasmModule = {
 	ccall: (ident: any, returnType: any, argTypes: any, args: any, opts: any) => any,
 	cwrap: (ident: any, returnType: any, argTypes: any, opts: any) => any,
-	onRuntimeInitialized: (any) => any
+	onRuntimeInitialized: (any) => any,
+	LUA_VALUE: any,
+	JS_VALUE: any
 };
