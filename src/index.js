@@ -10,7 +10,7 @@ class CompileError extends Error {
 
 class LuauState {
     static async createAsync(env) {
-        if (!Luau.onRuntimeInitialized) {
+        if (!Luau.calledRun) {
             await new Promise(resolve => {
                 Luau.onRuntimeInitialized = resolve;
             });
