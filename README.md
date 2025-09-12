@@ -1,7 +1,7 @@
 Luau Web
 ====
 
-<img src="https://github.com/user-attachments/assets/03cafe78-9430-4eec-a618-85e828812e0f" width="130px" align="right"/>
+<img src="./assets/LuauWeb.png" width="130px" align="right"/>
 
 Luau (lowercase u, /ˈlu.aʊ/) is a fast, small, safe, gradually typed embeddable scripting language derived from [Lua](https://lua.org).
 
