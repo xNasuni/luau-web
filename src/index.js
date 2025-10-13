@@ -1,23 +1,31 @@
-const InternalLuauWasmModule = require("./lib/Luau.Web")
-const Luau = InternalLuauWasmModule
+const InternalLuauWasmModule = require("./lib/Luau.Web")()
+var Luau = null;
+
+(async () => {
+    Luau = await InternalLuauWasmModule
+})()
 
 class CompileError extends Error {
     constructor(message) {
         super(message);
-        this.name = "CompileError";
+        this.name = "CompileError"
     }
 }
 
 class LuauState {
     static async createAsync(env) {
+        while (!Luau) {
+            await new Promise(resolve => setTimeout(resolve, 10));
+        }
+
         if (!Luau.calledRun) {
             await new Promise(resolve => {
-                Luau.onRuntimeInitialized = resolve;
+                Luau.onRuntimeInitialized = resolve
             });
         }
 
-        const instance = new LuauState(env);
-        return instance;
+        const instance = new LuauState(env)
+        return instance
     }
 
     constructor(env) {
@@ -27,7 +35,7 @@ class LuauState {
             this.envIdx = Luau.environments.length + 1
             Luau.environments[this.envIdx] = this.env
         } else {
-            this.envIdx = 0;
+            this.envIdx = 0
         }
 
         this.state = Luau.ccall('makeLuaState', 'int', ['number'], [this.envIdx])
@@ -39,7 +47,7 @@ class LuauState {
 
     getValue(idx) {
         var transactionId = Luau.ccall('getLuaValue', 'int', ['number', 'number'], [this.state, idx])
-        var luauValue = null;
+        var luauValue = null
         try {
             luauValue = JSON.parse(Luau.transactionData[transactionId])
         } catch (e) { }
@@ -48,7 +56,7 @@ class LuauState {
 
     makeTransaction(value) {
         const idx = Luau.transactionData.length
-        Luau.transactionData[idx] = value;
+        Luau.transactionData[idx] = value
 
         return idx
     }
@@ -75,4 +83,4 @@ module.exports = {
     LuauState,
     CompileError,
     InternalLuauWasmModule
-};
+}
