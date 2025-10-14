@@ -14,6 +14,8 @@ export interface LuauTable {
 
 export type LuauFunction = (...args: any) => any;
 
+export function Mutable(object: object | Map<any, any>): Map<any, any>;
+
 export class LuauState {
 	static createAsync(env?: LuauEnv): Promise<LuauState>;
 	constructor(env?: LuauEnv);
