@@ -17,6 +17,9 @@ export type LuauFunction = (...args: any) => any;
 export function Mutable(object: object | Map<any, any>): Map<any, any>;
 
 export class LuauState {
+	env: LuauEnv | undefined;
+	envIdx: number;
+
 	static createAsync(env?: LuauEnv): Promise<LuauState>;
 	constructor(env?: LuauEnv);
 
@@ -32,16 +35,17 @@ export interface InternalLuauWasmModule {
 	ccall: (ident: any, returnType: any, argTypes: any, args: any, opts: any) => any;
 	cwrap: (ident: any, returnType: any, argTypes: any, opts: any) => any;
 	onRuntimeInitialized: (arg: any) => any;
-	LUA_VALUE: any;
-	JS_VALUE: any;
-	FatalJSError: any;
-	LuaError: any;
-	GlueError: any;
-	transactionData: any;
-	environments: any;
-	fprint: (...args: any) => any;
-	fprintwarn: (...args: any) => any;
-	fprinterr: (...args: any) => any;
+	LUA_VALUE: symbol;
+	JS_VALUE: symbol;
+	JS_MUTABLE: symbol;
+	FatalJSError: Error;
+	LuaError: Error;
+	GlueError: Error;
+	transactionData: object[];
+	environments: LuauEnv[];
+	fprint: (...args: any[]) => void;
+	fprintwarn: (...args: any[]) => void;
+	fprinterr: (...args: any[]) => void;
 }
 
 export declare const InternalLuauWasmModule: InternalLuauWasmModule;
