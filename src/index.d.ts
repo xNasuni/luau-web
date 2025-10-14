@@ -38,9 +38,9 @@ export interface InternalLuauWasmModule {
 	LUA_VALUE: symbol;
 	JS_VALUE: symbol;
 	JS_MUTABLE: symbol;
-	FatalJSError: Error;
-	LuaError: Error;
-	GlueError: Error;
+	FatalJSError: { new(message?: string): Error };
+	LuaError: { new(message?: string): Error };
+	GlueError: { new(message?: string): Error };
 	transactionData: object[];
 	environments: LuauEnv[];
 	fprint: (...args: any[]) => void;
