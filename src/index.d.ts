@@ -17,6 +17,7 @@ export type LuauFunction = (...args: any) => any;
 export function Mutable(object: object | Map<any, any>): Map<any, any>;
 
 export class LuauState {
+	destroyed: boolean;
 	env: LuauEnv | undefined;
 	envIdx: number;
 

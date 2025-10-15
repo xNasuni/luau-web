@@ -87,14 +87,23 @@ class LuauState {
             this.envIdx = 0
         }
 
+        this.destroyed = false;
         this.state = Luau.ccall('makeLuaState', 'int', ['number'], [this.envIdx])
     }
 
     setEnvironment(env) {
+        if (this.destroyed) {
+            throw new CompileError("Cannot use destroyed Luau state")
+        }
+
         Luau.environments[this.envIdx] = env
     }
 
     getValue(idx) {
+        if (this.destroyed) {
+            throw new CompileError("Cannot use destroyed Luau state")
+        }
+
         var transactionId = Luau.ccall('getLuaValue', 'int', ['number', 'number'], [this.state, idx])
         var luauValue = null
         try {
@@ -104,6 +113,10 @@ class LuauState {
     }
 
     makeTransaction(value) {
+        if (this.destroyed) {
+            throw new CompileError("Cannot use destroyed Luau state")
+        }
+
         const idx = Luau.nextTXKey++
         Luau.transactionData[idx] = value
 
@@ -111,6 +124,10 @@ class LuauState {
     }
 
     loadstring(source, chunkname = "LuauWeb", throwOnCompilationError = false) {
+        if (this.destroyed) {
+            throw new CompileError("Cannot use destroyed Luau state")
+        }
+
         const loadStatus = Luau.ccall('luauLoad', 'int', ['number', 'number', 'number'], [this.state, this.makeTransaction(source), this.makeTransaction(chunkname)])
         if (loadStatus != 0) {
             const error = this.getValue(-1)
@@ -124,6 +141,11 @@ class LuauState {
     }
 
     destroy() {
+        if (this.destroyed) {
+            throw new CompileError("Cannot use destroyed Luau state")
+        }
+
+        this.destroyed = true;
         Luau.ccall('luauClose', 'void', ['int'], [this.state])
     }
 }
