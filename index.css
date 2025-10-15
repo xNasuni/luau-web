@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: #1e1e1e;
+	display: flex;
+	flex-direction: column;
+	color: white;
+	font-family: Inter, cursive;
+}
+
+a {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+}
+
+.header {
+	margin-top: 8px;
+	line-height: 0;
+}
+
+.header,
+.actions,
+.footer {
+	flex-shrink: 0;
+	padding: 8px;
+}
+
+.monaco {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	gap: 0;
+	padding: 8px;
+	padding-bottom: 0;
+	position: relative;
+}
+
+.pane {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	border: 1px solid #777;
+}
+
+.pane:first-child {
+	flex: 0 0 60%;
+}
+
+.pane:last-child {
+	flex: 1;
+	min-width: 0;
+}
+
+.resizer {
+	width: 8px;
+	cursor: col-resize;
+	background: transparent;
+	position: relative;
+	flex-shrink: 0;
+}
+
+.resizer:hover::before,
+.resizer.dragging::before {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	background: #666;
+	transform: translateX(-50%);
+}
+
+.resizer.dragging::before {
+	background: #888;
+}
+
+.codeheader {
+	padding: 4px;
+	padding-bottom: 0;
+	flex-shrink: 0;
+}
+
+.editor,
+.output {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+}
+
+.control {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 6px;
+}
+
+.control button {
+	border: 0;
+	padding: 4px;
+	background: #555;
+	color: white;
+	font-size: 16px;
+	font-family: Inter, cursive;
+}
+
+.control button:hover {
+	background: #666;
+	cursor: pointer;
+}
+
+.control button:active {
+	background: #888;
+}
+
+.control input[type=checkbox] {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 28px;
+	height: 28px;
+	border: 2px solid #444;
+	background: #1e1e1e;
+	cursor: pointer;
+	position: relative;
+	vertical-align: middle;
+	margin-top: 0px;
+}
+
+.control input[type=checkbox]:checked {
+	background-color: #555;
+	border-color: #555;
+}
+
+.control input[type=checkbox]:checked::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 24px;
+	height: 24px;
+	background-image: url('check.svg');
+	background-size: 24px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.control input[type=checkbox]:hover {
+	border-color: #666;
+}
+
+.control input[type=checkbox]:active {
+	border-color: #888;
+}
+
+.control span {
+	align-self: center;
+}
+
+.footer {
+	display: flex;
+	flex-direction: row;
+	position: relative;
+}
+
+.footertext {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	text-align: center;
+	align-self: center;
+	pointer-events: none;
+	color: #aaa;
+}
+
+.errorLineHighlight {
+	background-color: rgba(255, 0, 0, 0.3);
+}

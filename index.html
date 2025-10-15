@@ -1,1 +1,65 @@
-hi! :3
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="index.css" />
+		<link rel="icon" type="image/png" href="LuauWeb.png">
+		<title>Luau Web Playground</title>
+	</head>
+
+	<body>
+		<div class="container">
+			<div class="header">
+				<span>
+					<span>luau web playground</span>
+					<span style="color: #bbb">running</span>
+					<span><a
+							style="color: #ff90bf;"
+							href="https://github.com/xNasuni/luau-web/releases/tag/1.2.2">luau web
+							<span
+								style="color: #ff90bfaa">v1.2.2</span></a></span>
+					<span><a style="color: #fbff89;"
+							href="https://github.com/xNasuni/luau-web">star the
+							repo</a></span>
+					<span><a style="color: #0099f6;"
+							href="https://devforum.roblox.com/t/luau-web-luau-bindings-with-dynamic-javascript-interop-for-web-browsers-nodejs-and-typescript/3920716">devforum
+							post</a></span>
+				</span>
+			</div>
+			<div class="monaco" id="monaco">
+				<div class="pane" id="leftPane">
+					<span class="codeheader">Code <span style="color: #999">[Ctrl + Enter] ->
+							Execute</span></span>
+					<div class="editor" id="editor"></div>
+				</div>
+				<div class="resizer" id="resizer"></div>
+				<div class="pane">
+					<span class="codeheader">Output <span style="color: #999">[Ctrl + L] ->
+							Clear</span></span>
+					<div class="output" id="output"></div>
+				</div>
+			</div>
+		</div>
+		<div class="footer">
+			<div class="control">
+				<button id="execute">Execute</button>
+				<button id="clear">Clear</button>
+				<input id="clearonexec" type="checkbox" />
+				<span>Clear On Execute</span>
+				<input id="scrollonprint" type="checkbox" />
+				<span>Scroll On Print</span>
+			</div>
+			<span class="footertext">made with ❤ by
+				<a style="text-decoration: none; color: #ff90bf;"
+					href="https://github.com/xNasuni/">mia</a></span>
+		</div>
+		<script
+			src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"
+			defer></script>
+		<script
+			src="https://cdn.jsdelivr.net/gh/xNasuni/luau-web@1.2.2/dist/luauweb.min.js"></script>
+		<script src="index.js"></script>
+	</body>
+</html>
