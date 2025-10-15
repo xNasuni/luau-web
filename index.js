@@ -277,13 +277,11 @@
 		})();
 
 		const log = (...args) => {
-			console.log(args);
 			const text = args.map((v) => v?.toString() ?? String(v)).join(" ");
-			console.log(text, text.length);
 			const model = output.getModel();
 			const current = model.getValue();
 			model.setValue(current + (current ? "\n" : "") + text);
-			if (storedScrollOnPrint) {
+			if (scrollOnPrintToggle.checked) {
 				output.revealLine(model.getLineCount());
 			}
 			localStorage.setItem("output", output.getValue());
