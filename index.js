@@ -43,7 +43,242 @@
 			automaticLayout: true,
 		});
 
-		const log = (text) => {
+		editor.focus();
+
+		(() => {
+			const luaGlobals = {
+				_VERSION: "F",
+				_G: "F",
+				assert: "M",
+				error: "M",
+				gcinfo: "M",
+				getfenv: "M",
+				getmetatable: "M",
+				next: "M",
+				newproxy: "M",
+				print: "M",
+				rawequal: "M",
+				rawget: "M",
+				rawlen: "M",
+				rawset: "M",
+				select: "M",
+				setfenv: "M",
+				setmetatable: "M",
+				tonumber: "M",
+				tostring: "M",
+				type: "M",
+				typeof: "M",
+				ipairs: "M",
+				pairs: "M",
+				pcall: "M",
+				xpcall: "M",
+				unpack: "M",
+				math: [
+					"abs",
+					"acos",
+					"asin",
+					"atan2",
+					"atan",
+					"ceil",
+					"cosh",
+					"cos",
+					"deg",
+					"exp",
+					"floor",
+					"fmod",
+					"frexp",
+					"ldexp",
+					"lerp",
+					"map",
+					"log10",
+					"log",
+					"max",
+					"min",
+					"modf",
+					"pow",
+					"rad",
+					"random",
+					"randomseed",
+					"sinh",
+					"sin",
+					"sqrt",
+					"tanh",
+					"tan",
+					"noise",
+					"clamp",
+					"sign",
+					"round",
+				],
+				table: [
+					"concat",
+					"foreach",
+					"foreachi",
+					"getn",
+					"maxn",
+					"insert",
+					"remove",
+					"sort",
+					"pack",
+					"unpack",
+					"move",
+					"create",
+					"find",
+					"clear",
+					"freeze",
+					"isfrozen",
+					"clone",
+				],
+				string: [
+					"byte",
+					"char",
+					"find",
+					"format",
+					"gmatch",
+					"gsub",
+					"len",
+					"lower",
+					"match",
+					"rep",
+					"reverse",
+					"sub",
+					"upper",
+					"split",
+					"pack",
+					"packsize",
+					"unpack",
+				],
+				coroutine: [
+					"create",
+					"running",
+					"status",
+					"wrap",
+					"yield",
+					"isyieldable",
+					"resume",
+					"close",
+				],
+				bit32: [
+					"arshift",
+					"band",
+					"bnot",
+					"bor",
+					"bxor",
+					"btest",
+					"extract",
+					"lrotate",
+					"lshift",
+					"replace",
+					"rrotate",
+					"rshift",
+					"countlz",
+					"countrz",
+					"byteswap",
+				],
+				utf8: ["offset", "codepoint", "char", "len", "codes"],
+				os: ["clock", "date", "difftime", "time"],
+				debug: ["info", "traceback"],
+				buffer: [
+					"create",
+					"fromstring",
+					"tostring",
+					"len",
+					"readi8",
+					"readu8",
+					"readi16",
+					"readu16",
+					"readi32",
+					"readu32",
+					"readf32",
+					"readf64",
+					"writei8",
+					"writeu8",
+					"writei16",
+					"writeu16",
+					"writei32",
+					"writeu32",
+					"writef32",
+					"writef64",
+					"readstring",
+					"writestring",
+					"readbits",
+					"writebits",
+					"copy",
+					"fill",
+				],
+				vector: [
+					"Fzero",
+					"Fone",
+					"create",
+					"magnitude",
+					"normalize",
+					"cross",
+					"dot",
+					"angle",
+					"floor",
+					"ceil",
+					"abs",
+					"sign",
+					"clamp",
+					"max",
+					"min",
+				],
+			};
+
+			function generateTopLevelCompletionItems(obj) {
+				const items = [];
+				for (const key in obj) {
+					items.push({
+						label: key,
+						kind: Array.isArray(obj[key])
+							? monaco.languages.CompletionItemKind.Module
+							: obj[key] === "F"
+								? monaco.languages.CompletionItemKind.Field
+								: monaco.languages.CompletionItemKind.Function,
+						insertText: key,
+					});
+				}
+				return items;
+			}
+
+			function generateNestedCompletionItems(obj, parent) {
+				if (!obj[parent] || !Array.isArray(obj[parent])) return [];
+				return obj[parent].map((fn) => ({
+					label: fn.substr(0, 1) === "F" ? fn.substr(1) : fn,
+					kind:
+						fn.substr(0, 1) === "F"
+							? monaco.languages.CompletionItemKind.Field
+							: monaco.languages.CompletionItemKind.Function,
+					insertText: fn.substr(0, 1) === "F" ? fn.substr(1) : fn,
+					filterText: `${parent}.${fn.substr(0, 1) === "F" ? fn.substr(1) : fn}`,
+				}));
+			}
+
+			monaco.languages.registerCompletionItemProvider("lua", {
+				triggerCharacters: ["."],
+				provideCompletionItems: (model, position) => {
+					const textUntilPosition = model.getValueInRange({
+						startLineNumber: position.lineNumber,
+						startColumn: 1,
+						endLineNumber: position.lineNumber,
+						endColumn: position.column,
+					});
+
+					const match = textUntilPosition.match(/(\w+)\.$/);
+					if (match) {
+						const parent = match[1];
+						return {
+							suggestions: generateNestedCompletionItems(luaGlobals, parent),
+						};
+					}
+
+					return { suggestions: generateTopLevelCompletionItems(luaGlobals) };
+				},
+			});
+		})();
+
+		const log = (...args) => {
+			console.log(args);
+			const text = args.map((v) => v?.toString() ?? String(v)).join(" ");
 			console.log(text, text.length);
 			const model = output.getModel();
 			const current = model.getValue();
@@ -125,7 +360,8 @@
 			const exec = state.loadstring(editor.getModel().getValue());
 			if (typeof exec === "function") {
 				try {
-					exec();
+					const data = exec();
+					console.log(data);
 				} catch (e) {
 					handleError(e);
 				}
