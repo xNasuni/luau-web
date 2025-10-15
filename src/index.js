@@ -1,43 +1,33 @@
-const InternalLuauWasmModule = require("./lib/Luau.Web")
-var Luau = InternalLuauWasmModule
+import InternalLuauWasmModule from "./lib/Luau.Web.js"
+
+var Luau = {
+    LUA_VALUE: Symbol("LuaValue"),
+    JS_VALUE: Symbol("JsValue"),
+    JS_MUTABLE: Symbol("JsMutable"),
+
+    luaValueCache: new Map(),
+    jsValueCache: new Map(),
+    jsValueReverse: new Map(),
+
+    transactionData: [],
+    environments: [],
+
+    nextJSRef: -1,
+    nextTXKey: 0
+}
+
 var Initialized = false
 
-function ensureCommonValues() {
-    var addSafe = function (key, value) {
-        if (typeof Luau[key] === "undefined") {
-            Luau[key] = value
-        }
-    }
-
-    addSafe("LUA_VALUE", Symbol("LuaValue"))
-    addSafe("JS_VALUE", Symbol("JsValue"))
-    addSafe("JS_MUTABLE", Symbol("JsMutable"))
-
-    addSafe("luaValueCache", new Map())
-    addSafe("jsValueCache", new Map())
-    addSafe("jsValueReverse", new Map())
-
-    addSafe("transactionData", [])
-    addSafe("environments", [])
-
-    addSafe("nextJSRef", -1)
-    addSafe("nextTXKey", 0)
-}
-
-ensureCommonValues()
-
 async function ensureInitialized() {
-    if (!Luau.calledRun) {
-        await new Promise(resolve => {
-            Luau.onRuntimeInitialized = resolve
-        })
+    if (!Initialized) {
+        await InternalLuauWasmModule(Luau)
+        Initialized = true
     }
 
-    ensureCommonValues()
-
-    Initialized = true
     return Initialized
 }
+
+ensureInitialized()
 
 class CompileError extends Error {
     constructor(message) {
@@ -47,8 +37,6 @@ class CompileError extends Error {
 }
 
 function Mutable(object) {
-    ensureCommonValues()
-
     if (object instanceof Map) {
         object.set(Luau.JS_MUTABLE, true)
         return object
@@ -86,7 +74,9 @@ class LuauState {
     }
 
     constructor(env) {
-        ensureCommonValues()
+        if (!Initialized) {
+            throw new Error("Luau not initialized. Use LuauState.createAsync() instead of new LuauState()")
+        }
 
         if (env) {
             this.env = env
@@ -138,9 +128,4 @@ class LuauState {
     }
 }
 
-module.exports = {
-    Mutable,
-    LuauState,
-    CompileError,
-    InternalLuauWasmModule
-}
+export { Mutable, LuauState, CompileError, Luau as InternalLuauWasmModule }
