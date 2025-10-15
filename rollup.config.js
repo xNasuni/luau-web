@@ -2,7 +2,7 @@ import resolve from "@rollup/plugin-node-resolve"
 import commonjs from "@rollup/plugin-commonjs"
 
 export default [{
-	input: "src/luauweb.js",
+	input: "src/index.js",
 	output: {
 		file: "dist/luauweb.min.js",
 		format: "umd",
@@ -27,7 +27,7 @@ export default [{
 	]
 },
 {
-	input: "src/luauweb.js",
+	input: "src/index.js",
 	output: {
 		file: "dist/luauweb.cjs",
 		format: "cjs",
