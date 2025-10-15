@@ -359,7 +359,9 @@
 			if (typeof exec === "function") {
 				try {
 					const data = exec();
-					console.log(data);
+					if (data && Array.isArray(data) && data.length >= 1) {
+						log("execution returned data:", ...data);
+					}
 				} catch (e) {
 					handleError(e);
 				}
