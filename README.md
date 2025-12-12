@@ -1,4 +1,4 @@
-Luau Web `v1.2.2`
+Luau Web `v1.2.3`
 ====
 
 <img src="./assets/LuauWeb.png" width="130px" align="right"/>
