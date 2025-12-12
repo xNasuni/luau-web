@@ -1,37 +1,37 @@
 {
-    "name": "luau-web",
-    "version": "1.2.2",
-    "description": "Luau bindings with dynamic JavaScript interop for web browsers, Node.js, and TypeScript.",
-    "main": "src/index.js",
-    "types": "src/index.d.ts",
-    "type": "module",
-    "files": [
-        "src/"
-    ],
-    "scripts": {
-        "build": "npx rollup -c"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/xNasuni/luau-web.git"
-    },
-    "keywords": [
-        "lua",
-        "luau",
-        "luau-interop",
-        "luau-web",
-        "wasm"
-    ],
-    "author": "xNasuni",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/xNasuni/luau-web/issues"
-    },
-    "homepage": "https://github.com/xNasuni/luau-web#readme",
-    "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa",
-    "devDependencies": {
-        "@rollup/plugin-commonjs": "^28.0.7",
-        "@rollup/plugin-node-resolve": "^16.0.3",
-        "rollup": "^4.52.4"
-    }
+  "name": "luau-web",
+  "version": "1.2.3",
+  "description": "Luau bindings with dynamic JavaScript interop for web browsers, Node.js, and TypeScript.",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "type": "module",
+  "files": [
+    "src/"
+  ],
+  "scripts": {
+    "build": "npx rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xNasuni/luau-web.git"
+  },
+  "keywords": [
+    "lua",
+    "luau",
+    "luau-interop",
+    "luau-web",
+    "wasm"
+  ],
+  "author": "xNasuni",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xNasuni/luau-web/issues"
+  },
+  "homepage": "https://github.com/xNasuni/luau-web#readme",
+  "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.7",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "rollup": "^4.52.4"
+  }
 }
