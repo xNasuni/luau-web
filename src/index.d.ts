@@ -8,7 +8,8 @@ export interface LuauEnv {
 
 export interface LuauTable {
 	get(key: any): any;
-	set(key: any, value: any): any;
+	set(key: any, value: any, bypassReadonly?: boolean): boolean;
+	[Symbol.iterator](): IterableIterator<[any, any]>;
 	[key: string]: any;
 }
 
@@ -21,8 +22,8 @@ export class LuauState {
 	env: LuauEnv | undefined;
 	envIdx: number;
 
-	static createAsync(env?: LuauEnv): Promise<LuauState>;
-	constructor(env?: LuauEnv);
+	static createAsync(initialEnv?: LuauEnv): Promise<LuauState>;
+	constructor(initialEnv?: LuauEnv);
 
 	loadstring(source: string, chunkname: string, throwOnCompilationError: true): LuauFunction;
 	loadstring(source: string, chunkname?: string, throwOnCompilationError?: boolean): (LuauFunction) | string;
@@ -47,6 +48,7 @@ export interface InternalLuauWasmModule {
 	fprint: (...args: any[]) => void;
 	fprintwarn: (...args: any[]) => void;
 	fprinterr: (...args: any[]) => void;
+	securityTransmitList: Map<any, boolean>;
 }
 
 export declare const InternalLuauWasmModule: InternalLuauWasmModule;

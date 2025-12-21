@@ -8,6 +8,7 @@ var Luau = {
   luaValueCache: new Map(),
   jsValueCache: new Map(),
   jsValueReverse: new Map(),
+  securityTransmitList: new Map(),
 
   transactionData: [],
   environments: [],
@@ -72,31 +73,37 @@ function Mutable(object) {
 }
 
 class LuauState {
-  static async createAsync(env) {
+  static async createAsync(initialEnv) {
     await ensureInitialized();
 
-    const instance = new LuauState(env);
+    const instance = new LuauState(initialEnv);
     return instance;
   }
 
-  constructor(env) {
+  constructor(initialEnv) {
     if (!Initialized) {
       throw new Error(
         "Luau not initialized. Use LuauState.createAsync() instead of new LuauState()"
       );
     }
 
-    if (env) {
-      this.env = env;
-      Luau.environments = Luau.environments || [];
-      this.envIdx = Luau.environments.length + 1;
-      Luau.environments[this.envIdx] = this.env;
-    } else {
-      this.envIdx = 0;
-    }
+    Luau.environments = Luau.environments || [];
+    this.envIdx = Luau.environments.length + 1;
+    Luau.environments[this.envIdx] = {};
 
     this.destroyed = false;
     this.state = Luau.ccall("makeLuaState", "int", ["number"], [this.envIdx]);
+
+    // replace env ref with actual environment
+    this.env = Luau.environments[this.envIdx];
+
+    if (initialEnv) {
+      for (const [key, value] of Object.entries(initialEnv)) {
+        if (!this.env.set(key, value, true)) {
+          Luau.fprintwarn(`illegal state: lua globals key ${key} wasn't set`);
+        }
+      }
+    }
   }
 
   setEnvironment(env) {

@@ -1,26 +1,32 @@
-import { LuauState, Mutable } from "../src";
-
-//todo: implement actual test suite
+import { LuauState, LuauTable } from "../src";
 
 (async () => {
 	const state = await LuauState.createAsync({
-		lpool: Mutable({ a: { b: 1 } }),
-		test: function (arg: any) {
-			console.log(arg, arg.toString())
-			return state.env?.lpool.get(arg);
-		}
+		add: 5
 	});
 
-	const func = state.loadstring(`
-local lbuf = {7,8,9}
-print("a.b", lpool.a.b)
-lpool[lbuf] = {4,5,6}
-lpool.a = 1000
-print("test", test(lbuf))
-print("a.", lpool.a)
-`, "test/index.ts", true);
+	state.env?.set("ret", function (a: LuauTable) {
+		const buf = a.get("buf");
+		for (const [key, value] of a) {
+			console.log(String(key), " = ", String(value));
+		}
+		console.log(state.env?.buffer.readstring(buf, 0, 8))
+		return { d: 4, e: 5, f: 6 };
+	}, true); // true = bypass readonly
+
+	const code = `
+print(add) -- 5
+local buf = buffer.create(8)
+buffer.writestring(buf, 0, "hellowld")
+for key, value in ret({a=1,b=2,c=3,buf=buf}) do
+	print("lua", key, value)
+end
+
+GLOBAL = "doing something"
+`
+
+	const func = state.loadstring(code, "test/index.ts", true);
 	console.log(func());
 
-	console.log("lpool.a", state.env?.lpool['a'])
-	console.log("lpool", state.env?.lpool)
+	console.log(state.env?.global.GLOBAL); // "doing something"
 })();
