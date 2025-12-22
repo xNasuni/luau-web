@@ -1,6 +1,6 @@
 {
   "name": "luau-web",
-  "version": "1.3",
+  "version": "1.3.0",
   "description": "Luau bindings with dynamic JavaScript interop for web browsers, Node.js, and TypeScript.",
   "main": "src/index.js",
   "types": "src/index.d.ts",
