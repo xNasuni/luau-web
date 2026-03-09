@@ -19,7 +19,7 @@ export function Mutable(object: object | Map<any, any>): Map<any, any>;
 
 export class LuauState {
 	destroyed: boolean;
-	env: LuauEnv | undefined;
+	env: LuauTable & { global: LuauTable } | undefined;
 	envIdx: number;
 
 	static createAsync(initialEnv?: LuauEnv): Promise<LuauState>;
@@ -28,9 +28,18 @@ export class LuauState {
 	loadstring(source: string, chunkname: string, throwOnCompilationError: true): LuauFunction;
 	loadstring(source: string, chunkname?: string, throwOnCompilationError?: boolean): (LuauFunction) | string;
 	makeTransaction(value: any): number;
-	setEnvironment(env: LuauEnv): void;
 	getValue(idx: number): any;
 	destroy(): void;
+}
+
+export interface LuaState {
+	luaValueCache: Map<number, object>;
+	jsValueCache: Map<number, object>;
+	jsValueReverse: Map<object, number>;
+	transactionData: object[];
+	nextJSRef: number;
+	nextTXKey: number;
+	env: LuauTable & { global: LuauTable };
 }
 
 export interface InternalLuauWasmModule {
@@ -43,8 +52,9 @@ export interface InternalLuauWasmModule {
 	FatalJSError: { new(message?: string): Error };
 	LuaError: { new(message?: string): Error };
 	GlueError: { new(message?: string): Error };
+	RuntimeError: { new(message?: string): Error };
 	transactionData: object[];
-	environments: LuauEnv[];
+	states: LuaState[];
 	fprint: (...args: any[]) => void;
 	fprintwarn: (...args: any[]) => void;
 	fprinterr: (...args: any[]) => void;

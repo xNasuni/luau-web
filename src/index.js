@@ -5,16 +5,8 @@ var Luau = {
   JS_VALUE: Symbol("JsValue"),
   JS_MUTABLE: Symbol("JsMutable"),
 
-  luaValueCache: new Map(),
-  jsValueCache: new Map(),
-  jsValueReverse: new Map(),
   securityTransmitList: new Map(),
-
-  transactionData: [],
-  environments: [],
-
-  nextJSRef: -1,
-  nextTXKey: 0,
+  states: [],
 };
 
 var Initialized = false;
@@ -83,19 +75,25 @@ class LuauState {
   constructor(initialEnv) {
     if (!Initialized) {
       throw new Error(
-        "Luau not initialized. Use LuauState.createAsync() instead of new LuauState()"
+        "Luau not initialized. Use LuauState.createAsync() instead of new LuauState()",
       );
     }
 
-    Luau.environments = Luau.environments || [];
-    this.envIdx = Luau.environments.length + 1;
-    Luau.environments[this.envIdx] = {};
+    Luau.states = Luau.states || [];
+    this.stateIdx = Luau.states.length + 1;
+    Luau.states[this.stateIdx] = {};
+    Luau.states[this.stateIdx].luaValueCache = new Map();
+    Luau.states[this.stateIdx].jsValueCache = new Map();
+    Luau.states[this.stateIdx].jsValueReverse = new Map();
+    Luau.states[this.stateIdx].transactionData = [];
+    Luau.states[this.stateIdx].nextJSRef = -1;
+    Luau.states[this.stateIdx].nextTXKey = 0;
 
     this.destroyed = false;
-    this.state = Luau.ccall("makeLuaState", "int", ["number"], [this.envIdx]);
+    this.state = Luau.ccall("makeLuaState", "int", ["number"], [this.stateIdx]);
 
     // replace env ref with actual environment
-    this.env = Luau.environments[this.envIdx];
+    this.env = Luau.states[this.stateIdx].env;
 
     if (initialEnv) {
       for (const [key, value] of Object.entries(initialEnv)) {
@@ -104,14 +102,6 @@ class LuauState {
         }
       }
     }
-  }
-
-  setEnvironment(env) {
-    if (this.destroyed) {
-      throw new CompileError("Cannot use destroyed Luau state");
-    }
-
-    Luau.environments[this.envIdx] = env;
   }
 
   getValue(idx) {
@@ -123,13 +113,15 @@ class LuauState {
       "getLuaValue",
       "int",
       ["number", "number"],
-      [this.state, idx]
+      [this.state, idx],
     );
     var luauValue = null;
     try {
-      luauValue = JSON.parse(Luau.transactionData[transactionId]);
+      luauValue = JSON.parse(
+        Luau.states[this.stateIdx].transactionData[transactionId],
+      );
     } catch (e) {}
-    return Luau.luauToJsValue(this.state, luauValue);
+    return Luau.luauToJsValue(this.stateIdx, this.state, luauValue);
   }
 
   makeTransaction(value) {
@@ -137,8 +129,8 @@ class LuauState {
       throw new CompileError("Cannot use destroyed Luau state");
     }
 
-    const idx = Luau.nextTXKey++;
-    Luau.transactionData[idx] = value;
+    const idx = Luau.states[this.stateIdx].nextTXKey++;
+    Luau.states[this.stateIdx].transactionData[idx] = value;
 
     return idx;
   }
@@ -156,7 +148,7 @@ class LuauState {
         this.state,
         this.makeTransaction(source),
         this.makeTransaction(chunkname),
-      ]
+      ],
     );
     if (loadStatus != 0) {
       const error = this.getValue(-1);
@@ -175,6 +167,9 @@ class LuauState {
     }
 
     this.destroyed = true;
+    this.env = null;
+    Luau.states[this.stateIdx] = null;
+
     Luau.ccall("luauClose", "void", ["int"], [this.state]);
   }
 }
