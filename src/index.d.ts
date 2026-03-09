@@ -9,6 +9,7 @@ export interface LuauEnv {
 export interface LuauTable {
   get(key: any): any;
   set(key: any, value: any, bypassReadonly?: boolean): boolean;
+  keys(): any[];
   [Symbol.iterator](): IterableIterator<[any, any]>;
   [key: string]: any;
 }
