@@ -25,7 +25,7 @@ export type LuauEnv = LuauTable & {
     isfunction: (t: any) => boolean
     isreadonly: (t: LuauTable) => boolean
     setreadonly: (t: LuauTable, readonly: boolean) => void
-    getrawmetatable: (t: LuauTable) => LuauTable
+    getrawmetatable: (t: LuauTable) => LuauTable?
     setrawmetatable: (t: LuauTable, mt: object) => LuauTable
     global: LuauTable
 }
