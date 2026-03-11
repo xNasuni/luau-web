@@ -9,7 +9,8 @@
     "src/"
   ],
   "scripts": {
-    "build": "npx rollup -c"
+    "build": "npx rollup -c",
+    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.7",
     "@rollup/plugin-node-resolve": "^16.0.3",
+    "prettier": "^3.8.1",
     "rollup": "^4.52.4"
   }
 }
