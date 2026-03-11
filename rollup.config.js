@@ -1,13 +1,14 @@
 import resolve from "@rollup/plugin-node-resolve"
 import commonjs from "@rollup/plugin-commonjs"
 
-export default [{
+export default {
 	input: "src/index.js",
 	output: {
 		file: "dist/luauweb.min.js",
-		format: "umd",
+		format: "es",
 		name: "LuauWeb",
-		sourcemap: false
+		sourcemap: false,
+		inlineDynamicImports: true
 	},
 	plugins: [{
 		name: "stub-fs",
@@ -25,18 +26,4 @@ export default [{
 	resolve({ browser: true, preferBuiltins: false }),
 	commonjs()
 	]
-},
-{
-	input: "src/index.js",
-	output: {
-		file: "dist/luauweb.cjs",
-		format: "cjs",
-		sourcemap: false
-	},
-	external: ["fs", "path", "crypto"],
-	plugins: [
-		resolve({ preferBuiltins: true }),
-		commonjs()
-	]
 }
-]
