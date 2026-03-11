@@ -1,4 +1,4 @@
-Luau Web `v1.3`
+Luau Web `v1.4`
 ====
 
 <img src="./assets/LuauWeb.png" width="130px" align="right"/>
@@ -13,7 +13,9 @@ The Luau Web package uses [Luau Interop](https://github.com/xNasuni/luau-interop
 
 ### web <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" width="30px" align="left" />
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/gh/xNasuni/luau-web@main/dist/luauweb.min.js"></script>
+<script type="module">
+import { LuauState, Mutable } from 'https://cdn.jsdelivr.net/gh/xNasuni/luau-web@main/dist/luauweb.min.js';
+</script>
 ```
 
 ### pnpm <img src="https://avatars.githubusercontent.com/u/21320719?s=64&v=4" width="30px" align="left"/>
