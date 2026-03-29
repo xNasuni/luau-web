@@ -338,7 +338,7 @@ require(["vs/editor/editor.main"], async () => {
 		const disposable = editor.onDidChangeModelContent(externalEventListener);
 	}
 
-	function execute() {
+	async function execute() {
 		if (externalEventListener != null) {
 			externalEventListener();
 		}
@@ -359,11 +359,12 @@ require(["vs/editor/editor.main"], async () => {
 		const exec = state.loadstring(editor.getModel().getValue());
 		if (typeof exec === "function") {
 			try {
-				const data = exec();
+				const data = await exec();
 				if (data && Array.isArray(data) && data.length >= 1) {
 					log("execution returned data:", ...data);
 				}
 			} catch (e) {
+				console.log(e)
 				handleError(e);
 			}
 			return;
