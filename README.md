@@ -1,5 +1,4 @@
-Luau Web `v1.4`
-====
+# Luau Web `v1.5`
 
 <img src="./assets/LuauWeb.png" width="130px" align="right"/>
 
@@ -12,9 +11,10 @@ The Luau Web package uses [Luau Interop](https://github.com/xNasuni/luau-interop
 # Installation
 
 ### web <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" width="30px" align="left" />
+
 ```html
 <script type="module">
-import { LuauState, Mutable } from 'https://cdn.jsdelivr.net/gh/xNasuni/luau-web@main/dist/luauweb.min.js';
+    import { LuauState } from 'https://cdn.jsdelivr.net/gh/xNasuni/luau-web@main/dist/luauweb.min.js'
 </script>
 ```
 
@@ -23,7 +23,9 @@ import { LuauState, Mutable } from 'https://cdn.jsdelivr.net/gh/xNasuni/luau-web
 ```sh
 pnpm install luau-web
 ```
+
 ### npm <img src="https://raw.githubusercontent.com/npm/logos/refs/heads/master/npm%20square/n-64.png" width="30px" align="left"/>
+
 ```sh
 npm install luau-web
 ```
