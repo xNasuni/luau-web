@@ -1,32 +1,117 @@
-import { LuauState, LuauTable } from "../src";
+import { registry, makeContext, counter } from './util.ts'
+import { InternalLuauWasmModule } from '../src/index.js'
 
-(async () => {
-	const state = await LuauState.createAsync({
-		add: 5
-	});
+const isNode = typeof process !== 'undefined' && !!process.versions?.node
 
-	state.env?.set("ret", function (a: LuauTable) {
-		const buf = a.get("buf");
-		for (const [key, value] of a) {
-			console.log(String(key), " = ", String(value));
-		}
-		console.log(state.env?.buffer.readstring(buf, 0, 8))
-		return { d: 4, e: 5, f: 6 };
-	}, true); // true = bypass readonly
+const green = (s: string) => `\x1b[38;2;152;214;168m${s}\x1b[0m`
+const red = (s: string) => `\x1b[38;2;232;106;106m${s}\x1b[0m`
+const softRed = (s: string) => `\x1b[38;2;240;160;160m${s}\x1b[0m`
 
-	const code = `
-print(add) -- 5
-local buf = buffer.create(8)
-buffer.writestring(buf, 0, "hellowld")
-for key, value in ret({a=1,b=2,c=3,buf=buf}) do
-	print("lua", key, value)
-end
+if (!('Suspending' in WebAssembly && 'promising' in WebAssembly)) {
+    const msg =
+        'The luau-web tests require JSPI, so you need to use a runtime that supports it; i.e. Node.JS 25+, Bun, or a recent browser and use pnpm test-web'
+    if (isNode) {
+        console.error(red(msg))
+        process.exit(1)
+    }
+    throw new Error(msg)
+}
 
-GLOBAL = "doing something"
-`
+const filter = isNode
+    ? process.argv[2]
+    : (new URLSearchParams(location.search).get('filter') ?? undefined)
 
-	const func = state.loadstring(code, "test/index.ts", true);
-	console.log(func());
+const loaders = new Map<string, () => Promise<unknown>>()
+let locate = (_err: unknown, file: string) => `test/cases/${file}`
+if (isNode) {
+    const [fs, path, url] = await Promise.all(
+        ['node:fs', 'node:path', 'node:url'].map(
+            m => import(/* @vite-ignore */ m),
+        ),
+    )
+    const here = path.dirname(url.fileURLToPath(import.meta.url))
+    const root = path.join(here, 'cases')
+    for (const f of fs.readdirSync(root, { recursive: true }) as string[]) {
+        loaders.set(
+            f,
+            () =>
+                import(
+                    /* @vite-ignore */ url.pathToFileURL(path.join(root, f))
+                        .href
+                ),
+        )
+    }
+    locate = (err, file) => {
+        const stacks = [(err as Error)?.stack, (err as any)?.callSite]
+        for (const stack of stacks) {
+            const frame = String(stack ?? '')
+                .split('\n')
+                .find(l => l.includes('/cases/') || l.includes('\\cases\\'))
+            const m = frame?.match(/\(?(?:file:\/\/)?([^()\s]+):(\d+):\d+\)?$/)
+            if (m) return `${path.relative(path.dirname(here), m[1])}:${m[2]}`
+        }
+        return path.join('test', 'cases', file)
+    }
+} else {
+    const modules = (import.meta as any).glob('./cases/**/*.test.ts') as Record<
+        string,
+        () => Promise<unknown>
+    >
+    for (const [p, load] of Object.entries(modules)) {
+        loaders.set(p.slice('./cases/'.length), load)
+    }
+}
 
-	console.log(state.env?.global.GLOBAL); // "doing something"
-})();
+const files = [...loaders.keys()]
+    .filter(f => f.endsWith('.test.ts') && (!filter || f.includes(filter)))
+    .sort()
+
+export const categories = new Map<
+    string,
+    { total: number; asserts: number; errors: string[] }
+>()
+
+for (const file of files) {
+    const category = file.split(/[\\/]/)[0]
+    const stat = categories.get(category) ?? {
+        total: 0,
+        asserts: 0,
+        errors: [],
+    }
+    categories.set(category, stat)
+
+    registry.length = 0
+    await loaders.get(file)!()
+    for (const { name, fn } of [...registry]) {
+        stat.total++
+        counter.passed = 0
+        try {
+            const ctx = await makeContext()
+            await fn(ctx)
+
+            const pending =
+                InternalLuauWasmModule.states[ctx.state.stateIdx]
+                    ?.pendingCalls ?? 0
+            if (pending > 0) {
+                throw new Error(
+                    `test returned with ${pending} lua call${pending != 1 ? 's' : ''} still running, did you forget to await a call?`,
+                )
+            }
+        } catch (err) {
+            const reason = err instanceof Error ? err.message : String(err)
+            stat.errors.push(`${locate(err, file)}: ${name} failed (${reason})`)
+        }
+        stat.asserts += counter.passed
+    }
+}
+
+export const failed = [...categories.values()].some(c => c.errors.length > 0)
+
+if (isNode) {
+    for (const [category, { total, asserts, errors }] of categories) {
+        errors.forEach(e => console.log(softRed(e)))
+        const label = `[${asserts}, ${total - errors.length}/${total}] ${category[0].toUpperCase() + category.slice(1)} tests passed`
+        console.log(errors.length ? red(label) : green(label))
+    }
+    process.exit(failed ? 1 : 0)
+}
