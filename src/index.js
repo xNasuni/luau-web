@@ -106,6 +106,38 @@ function Indexable(fn) {
     })
 }
 
+function warnPending(stateIdx) {
+    const pending = Luau.states[stateIdx]?.pendingCalls ?? 0
+    if (pending >= 1) {
+        Luau.fprintwarn(
+            `${pending} lua call${pending != 1 ? 's' : ''} still running while closing, did you forget to await a call?`,
+        )
+    }
+}
+
+const stateRegistry =
+    typeof FinalizationRegistry === 'function'
+        ? new FinalizationRegistry(stateIdx => {
+              try {
+                  warnPending(stateIdx)
+              } catch {}
+          })
+        : null
+
+try {
+    if (typeof process !== 'undefined' && typeof process.on === 'function') {
+        process.on('exit', () => {
+            try {
+                for (let i = 0; i < Luau.states.length; i++) {
+                    if (Luau.states[i]) {
+                        warnPending(i)
+                    }
+                }
+            } catch {}
+        })
+    }
+} catch {}
+
 class LuauState {
     static async createAsync(initialEnv) {
         await ensureInitialized()
@@ -147,6 +179,8 @@ class LuauState {
         this.destroyed = false
         this.state = null
         this.env = null
+
+        stateRegistry?.register(this, this.stateIdx, this)
     }
 
     getValue(idx) {
@@ -212,6 +246,7 @@ class LuauState {
         this.destroyed = true
         this.env = null
         Luau.states[this.stateIdx] = null
+        stateRegistry?.unregister(this)
 
         Luau._luauClose(this.state)
     }
