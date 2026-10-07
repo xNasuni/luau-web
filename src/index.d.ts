@@ -1,9 +1,7 @@
+declare const luauUserdata: unique symbol
+
 export class CompileError extends Error {
     constructor(message: string)
-}
-
-export interface LuauEnv {
-    [key: string]: any
 }
 
 export interface LuauTable {
@@ -14,29 +12,35 @@ export interface LuauTable {
     [key: string]: any
 }
 
+export interface LuauUserdata {
+    readonly [luauUserdata]: true
+}
+
+export type LuauMetatabled = LuauTable | LuauUserdata
+
 export type LuauFunction = (...args: any) => any
 
-export function Mutable<T extends object>(
-    object: T,
-): Map<keyof T, T[keyof T]> & T
+export function Mutable<T extends object>(object: T): Map<any, any> & T
+export function Indexable<T extends Function>(fn: T): T
 
 export type LuauEnv = LuauTable & {
     istable: (t: any) => boolean
     isfunction: (t: any) => boolean
     isreadonly: (t: LuauTable) => boolean
     setreadonly: (t: LuauTable, readonly: boolean) => void
-    getrawmetatable: (t: LuauTable) => LuauTable | null
-    setrawmetatable: (t: LuauTable, mt: object) => LuauTable
+    getrawmetatable: (t: LuauMetatabled) => LuauTable | null
+    setrawmetatable: (t: LuauMetatabled, mt: object) => LuauTable
+    newuserdata: () => LuauUserdata
     global: LuauTable
 }
 
 export class LuauState {
     destroyed: boolean
+    stateIdx: number
     env: LuauEnv
-    envIdx: number
 
-    static createAsync(initialEnv?: LuauEnv): Promise<LuauState>
-    constructor(initialEnv?: LuauEnv)
+    static createAsync(initialEnv?: Record<string, any>): Promise<LuauState>
+    constructor(initialEnv?: Record<string, any>)
 
     loadstring(
         source: string,
@@ -58,6 +62,7 @@ export interface LuaState {
     jsValueCache: Map<number, object>
     jsValueReverse: Map<object, number>
     transactionData: object[]
+    pendingCalls: number
     nextJSRef: number
     nextTXKey: number
     env: LuauEnv
@@ -87,7 +92,9 @@ export interface InternalLuauWasmModule {
     fprinterr: (...args: any[]) => void
     securityTransmitList: Map<any, boolean>
     options: Map<
-        'LUA_IMPLICIT_ARRAYS_TO_JS_ARRAYS' | 'LUA_NONSTRICT_READONLY',
+        | 'LUA_IMPLICIT_ARRAYS_TO_JS_ARRAYS'
+        | 'LUA_NONSTRICT_READONLY'
+        | 'LUA_INTEROP_CORE_SILENCE_WARNINGS',
         boolean
     >
 }

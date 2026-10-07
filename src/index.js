@@ -11,6 +11,7 @@ var Luau = {
     LUA_VALUE: Symbol('LuaValue'),
     JS_VALUE: Symbol('JsValue'),
     JS_MUTABLE: Symbol('JsMutable'),
+    JS_INDEXABLE: Symbol('JsIndexable'),
 
     securityTransmitList: new Map(),
     options: new Map([['LUA_IMPLICIT_ARRAYS_TO_JS_ARRAYS', true]]),
@@ -47,9 +48,31 @@ function Mutable(object) {
     const map = object instanceof Map ? object : new Map(Object.entries(object))
     map.set(Luau.JS_MUTABLE, true)
 
+    const entries = function* () {
+        for (const entry of map) if (entry[0] !== Luau.JS_MUTABLE) yield entry
+    }
+    const hidden = {
+        size: () => map.size - 1,
+        keys: () =>
+            (function* () {
+                for (const [k] of entries()) yield k
+            })(),
+        values: () =>
+            (function* () {
+                for (const [, v] of entries()) yield v
+            })(),
+        entries,
+        [Symbol.iterator]: entries,
+        forEach: (cb, thisArg) => {
+            for (const [k, v] of entries()) cb.call(thisArg, v, k, proxy)
+        },
+    }
+
     const proxy = new Proxy(map, {
         get(target, prop, receiver) {
-            const val = Reflect.get(target, prop, receiver)
+            if (prop in hidden)
+                return prop === 'size' ? hidden.size() : hidden[prop]
+            const val = Reflect.get(target, prop, target)
             if (typeof val === 'function') return val.bind(target)
             if (target.has(prop)) return target.get(prop)
             return val
@@ -64,6 +87,23 @@ function Mutable(object) {
     })
 
     return proxy
+}
+
+function Indexable(fn) {
+    if (typeof fn !== 'function') {
+        throw new TypeError('Indexable expects a function')
+    }
+
+    return new Proxy(fn, {
+        has(target, prop) {
+            return prop === Luau.JS_INDEXABLE || Reflect.has(target, prop)
+        },
+        get(target, prop) {
+            return prop === Luau.JS_INDEXABLE
+                ? true
+                : Reflect.get(target, prop, target)
+        },
+    })
 }
 
 class LuauState {
@@ -162,6 +202,13 @@ class LuauState {
             throw new Luau.GlueError('Cannot use destroyed Luau state')
         }
 
+        const pending = Luau.states[this.stateIdx]?.pendingCalls ?? 0
+        if (pending > 0) {
+            Luau.fprintwarn(
+                `destroying a state with ${pending} lua call${pending != 1 ? 's' : ''} still running, did you forget to await a call?`,
+            )
+        }
+
         this.destroyed = true
         this.env = null
         Luau.states[this.stateIdx] = null
@@ -170,4 +217,10 @@ class LuauState {
     }
 }
 
-export { Mutable, LuauState, CompileError, Luau as InternalLuauWasmModule }
+export {
+    Mutable,
+    Indexable,
+    LuauState,
+    CompileError,
+    Luau as InternalLuauWasmModule,
+}

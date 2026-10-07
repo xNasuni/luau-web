@@ -10,7 +10,9 @@
     ],
     "scripts": {
         "build": "npx rollup -c",
-        "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'"
+        "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
+        "test": "node test/index.ts",
+        "test-web": "vite --config test-web/vite.config.ts --open"
     },
     "repository": {
         "type": "git",
@@ -33,7 +35,10 @@
     "devDependencies": {
         "@rollup/plugin-commonjs": "^28.0.7",
         "@rollup/plugin-node-resolve": "^16.0.3",
+        "@types/node": "^26.6.4",
         "prettier": "^3.8.1",
-        "rollup": "^4.52.4"
+        "rollup": "^4.52.4",
+        "tsx": "^4.23.15",
+        "vite": "^7.0.0"
     }
 }
