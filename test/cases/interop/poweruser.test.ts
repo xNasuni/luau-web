@@ -82,7 +82,9 @@ test('JS poweruser methods', true, async ({ state, run }) => {
 
         expect(1000000000i, t.a)
     `)
+})
 
+test('JS userdata metatable', async ({ state, run }) => {
     const ud = state.env.newuserdata()
     state.env.setrawmetatable(ud, {
         __index: function () {
