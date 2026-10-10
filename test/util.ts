@@ -12,12 +12,16 @@ export interface Context {
 
 export type TestFn = (ctx: Context) => void | Promise<void>
 
-export const registry: { name: string; fn: TestFn }[] = []
+export const registry: { name: string; fn: TestFn; raw?: boolean }[] = []
 
 export const counter = { passed: 0 }
 
 export function test(name: string, fn: TestFn) {
     registry.push({ name, fn })
+}
+
+export function rawTest(name: string, fn: () => void | Promise<void>) {
+    registry.push({ name, fn: fn as TestFn, raw: true })
 }
 
 const show = (v: unknown) =>

@@ -16,6 +16,7 @@ test('Lua JS globals', async ({ state, run }) => {
         aconst = 500
     `)
 
+    state.env.global.set('aconst', null)
     expect(100, state.env.get('aconst'))
 })
 

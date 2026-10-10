@@ -29,6 +29,13 @@ test('Lua to JS serialization', async ({ state, run }) => {
         JSON.stringify([vec.x, vec.y, vec.z]),
     )
 
+    const vec2 = (await run('return callback(vector.create(100, 200, 300))'))[0]
+    expect(true, !!vec2)
+    expect(
+        JSON.stringify([100, 200, 300]),
+        JSON.stringify([vec2.x, vec2.y, vec2.z]),
+    )
+
     expect(
         7815259884273231202n,
         (await run('return callback(7815259884273231202i)'))[0],

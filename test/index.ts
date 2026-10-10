@@ -82,11 +82,27 @@ for (const file of files) {
 
     registry.length = 0
     await loaders.get(file)!()
-    for (const { name, fn } of [...registry]) {
+    for (const { name, fn, raw } of [...registry]) {
         stat.total++
         counter.passed = 0
         try {
+            const oldCounter = counter.passed
+
+            if (raw) {
+                await (fn as () => void | Promise<void>)()
+                counter.passed = oldCounter
+
+                await (fn as () => void | Promise<void>)()
+
+                stat.asserts += counter.passed
+                continue
+            }
+
             const ctx = await makeContext()
+
+            await fn(ctx)
+            counter.passed = oldCounter
+
             await fn(ctx)
 
             const pending =
