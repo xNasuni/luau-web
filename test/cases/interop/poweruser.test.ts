@@ -5,7 +5,7 @@ import {
 } from '../../../src/index.js'
 import { test } from '../../util.ts'
 
-test('JS poweruser methods', async ({ state, run }) => {
+test('JS poweruser methods', true, async ({ state, run }) => {
     state.env.set(
         'test',
         (t: LuauTable) => {

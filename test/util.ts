@@ -12,12 +12,27 @@ export interface Context {
 
 export type TestFn = (ctx: Context) => void | Promise<void>
 
-export const registry: { name: string; fn: TestFn; raw?: boolean }[] = []
+export const registry: {
+    name: string
+    fn: TestFn
+    raw?: boolean
+    jspi?: boolean
+}[] = []
 
 export const counter = { passed: 0 }
 
-export function test(name: string, fn: TestFn) {
-    registry.push({ name, fn })
+export const hasJspi = 'Suspending' in WebAssembly && 'promising' in WebAssembly
+
+export function test(name: string, fn: TestFn): void
+export function test(name: string, jspi: boolean | null, fn: TestFn): void
+export function test(
+    name: string,
+    jspiOrFn: boolean | null | TestFn,
+    maybeFn?: TestFn,
+) {
+    const jspi = typeof jspiOrFn === 'function' ? false : !!jspiOrFn
+    const fn = typeof jspiOrFn === 'function' ? jspiOrFn : maybeFn!
+    registry.push({ name, fn, jspi })
 }
 
 export function rawTest(name: string, fn: () => void | Promise<void>) {

@@ -44,7 +44,7 @@ test('JS Lua globals', async ({ state, run }) => {
     expect(100, (await state.env.global.get('getmultret')())[2])
 })
 
-test('JS Immutable reference', async ({ state, run }) => {
+test('JS Immutable reference', true, async ({ state, run }) => {
     state.env.set('immutable', { a: 10, b: 20 }, true)
 
     await run(`

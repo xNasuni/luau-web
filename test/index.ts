@@ -1,4 +1,4 @@
-import { registry, makeContext, counter } from './util.ts'
+import { registry, makeContext, counter, hasJspi } from './util.ts'
 import { InternalLuauWasmModule } from '../src/index.js'
 
 const isNode = typeof process !== 'undefined' && !!process.versions?.node
@@ -6,16 +6,6 @@ const isNode = typeof process !== 'undefined' && !!process.versions?.node
 const green = (s: string) => `\x1b[38;2;152;214;168m${s}\x1b[0m`
 const red = (s: string) => `\x1b[38;2;232;106;106m${s}\x1b[0m`
 const softRed = (s: string) => `\x1b[38;2;240;160;160m${s}\x1b[0m`
-
-if (!('Suspending' in WebAssembly && 'promising' in WebAssembly)) {
-    const msg =
-        'The luau-web tests require JSPI, so you need to use a runtime that supports it; i.e. Node.JS 25+, Bun, or a recent browser and use pnpm test-web'
-    if (isNode) {
-        console.error(red(msg))
-        process.exit(1)
-    }
-    throw new Error(msg)
-}
 
 const filter = isNode
     ? process.argv[2]
@@ -68,13 +58,14 @@ const files = [...loaders.keys()]
 
 export const categories = new Map<
     string,
-    { total: number; asserts: number; errors: string[] }
+    { total: number; skipped: number; asserts: number; errors: string[] }
 >()
 
 for (const file of files) {
     const category = file.split(/[\\/]/)[0]
     const stat = categories.get(category) ?? {
         total: 0,
+        skipped: 0,
         asserts: 0,
         errors: [],
     }
@@ -82,7 +73,12 @@ for (const file of files) {
 
     registry.length = 0
     await loaders.get(file)!()
-    for (const { name, fn, raw } of [...registry]) {
+    for (const { name, fn, raw, jspi } of [...registry]) {
+        if (jspi && !hasJspi) {
+            stat.skipped++
+            continue
+        }
+
         stat.total++
         counter.passed = 0
         try {
@@ -124,9 +120,10 @@ for (const file of files) {
 export const failed = [...categories.values()].some(c => c.errors.length > 0)
 
 if (isNode) {
-    for (const [category, { total, asserts, errors }] of categories) {
+    for (const [category, { total, skipped, asserts, errors }] of categories) {
         errors.forEach(e => console.log(softRed(e)))
-        const label = `[${asserts}, ${total - errors.length}/${total}] ${category[0].toUpperCase() + category.slice(1)} tests passed`
+        const note = skipped ? `, ${skipped} skipped` : ''
+        const label = `[${asserts}, ${total - errors.length}/${total}] ${category[0].toUpperCase() + category.slice(1)} tests passed${note}`
         console.log(errors.length ? red(label) : green(label))
     }
     process.exit(failed ? 1 : 0)

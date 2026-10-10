@@ -10,7 +10,7 @@
     ],
     "scripts": {
         "build": "npx rollup -c",
-        "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
+        "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}' 'test/**/*.{ts,tsx,js,jsx,json,css,md}' 'test-web/**/*.{ts,tsx,js,jsx,json,css,md,html}'",
         "test": "node test/index.ts",
         "test-web": "vite --config test-web/vite.config.ts --open"
     },
